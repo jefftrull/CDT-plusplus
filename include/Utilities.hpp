@@ -33,7 +33,7 @@
 #include <string>
 #include <typeindex>
 // H. Hinnant's date and time library
-//#include <date/tz.h>
+#include <date/tz.h>
 
 // M. O'Neill's Permutation Congruential Generator library
 #include "pcg_random.hpp"
@@ -107,25 +107,25 @@ inline std::ostream& operator<<(std::ostream& os, topology_type const& topology)
 /// Parser. https://github.com/HowardHinnant/date
 ///
 /// @return A formatted string with the system local time
-//[[nodiscard]] inline auto currentDateTime()
-//{
-//  using namespace date;
-//  using namespace std::chrono;
-//  auto t = make_zoned(current_zone(), system_clock::now());
-//  return format("%Y-%m-%d.%X%Z", t);
-//}
+[[nodiscard]] inline auto currentDateTime()
+{
+  using namespace date;
+  using namespace std::chrono;
+  auto t = make_zoned(current_zone(), system_clock::now());
+  return format("%Y-%m-%d.%X%Z", t);
+}
 
 /// @brief Return the current date and time
-inline std::string currentDateTime()
-{
-  std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-  std::time_t now_c    = std::chrono::system_clock::to_time_t(now);
-  auto        result_c = std::put_time(std::localtime(&now_c), "%Y-%m-%d.%X%Z");
-  std::ostringstream result_s;
-  result_s << result_c;
-  std::string result = result_s.str();
-  return result;
-}
+//inline std::string currentDateTime()
+//{
+//  std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+//  std::time_t now_c    = std::chrono::system_clock::to_time_t(now);
+//  auto        result_c = std::put_time(std::localtime(&now_c), "%Y-%m-%d.%X%Z");
+//  std::ostringstream result_s;
+//  result_s << result_c;
+//  std::string result = result_s.str();
+//  return result;
+//}
 
 /// @brief  Generate useful filenames
 /// @param top The topology type from the scoped enum topology_type

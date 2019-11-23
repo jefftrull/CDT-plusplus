@@ -16,7 +16,7 @@ add_executable(
   Utilities_test.cpp
   VertexTest.cpp)
 
-target_link_libraries(CDT_test Catch2::Catch2 CGAL::CGAL)
+target_link_libraries(CDT_test Catch2::Catch2 date::date CGAL::CGAL)
 
 # Activate C++17
 target_compile_features(CDT_test PRIVATE cxx_std_17)
