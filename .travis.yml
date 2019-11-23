@@ -3,10 +3,10 @@ language: cpp
 dist: bionic
 osx_image: xcode11.2
 
-cache:
-  - ccache
-  - directories:
-      - $TRAVIS_BUILD_DIR/vcpkg
+#cache:
+#  - ccache
+#  - directories:
+#      - $TRAVIS_BUILD_DIR/vcpkg
 
 addons:
   apt:
