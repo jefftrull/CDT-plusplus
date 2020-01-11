@@ -14,10 +14,12 @@ addons:
       - sourceline: 'ppa:ubuntu-toolchain-r/test'
     packages:
       - g++-9
+      - ninja-build
       - yasm
   homebrew:
     packages:
       - ccache
+      - ninja
       - yasm
     update: true
 
@@ -108,46 +110,12 @@ jobs:
             - sourceline: 'ppa:ubuntu-toolchain-r/test'
           packages:
             - g++-9
+            - ninja-build
             - yasm
             - valgrind
       after_success:
         - travis_wait 30 ctest -T memcheck --verbose
         - travis_wait 30 valgrind --leak-check=full --show-leak-kinds=all --verbose ./initialize --s -n32000 -t11
-    # CodeCov
-    - os: linux
-      compiler: gcc
-      env: CODECOV=true
-      addons:
-        apt:
-          sources:
-            - sourceline: 'ppa:ubuntu-toolchain-r/test'
-          packages:
-            - g++-9
-            - yasm
-            - binutils-dev
-            - libcurl4-openssl-dev
-            - zlib1g-dev
-            - libdw-dev
-            - libiberty-dev
-      before_install:
-        - export CXX="g++-9" CC="gcc-9"
-        # Install kcov
-        - cd $TRAVIS_BUILD_DIR
-        - echo "Installing kcov"
-        - git clone https://github.com/SimonKagstrom/kcov.git
-        - cd kcov
-        - mkdir build
-        - cd build
-        - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
-        - make
-        - sudo make install
-        - cd $TRAVIS_BUILD_DIR
-      after_success:
-        - cd $TRAVIS_BUILD_DIR/tools
-        - pwd
-        - travis_wait 60 ./kcov.sh
-        - cd $TRAVIS_BUILD_DIR/build/tests
-        - bash <(curl -s https://codecov.io/bash) -s kcov-results
     # Doxygen
     - os: linux
       compiler: gcc
@@ -165,6 +133,7 @@ jobs:
       script:
         - cd $TRAVIS_BUILD_DIR
         - doxygen docs/Doxyfile
+        - touch docs/html/.nojekyll
       after_success:
         # Overwrite usual after_success step without canceling it (which would cause deploy to not run)
         - pwd
@@ -178,11 +147,9 @@ jobs:
         edge: true
         on:
           all_branches: true
+          condition: $TRAVIS_BRANCH =~ ^(master|develop)$
   allow_failures:
     - os: osx
-    - os: linux
-      compiler: gcc
-      env: CODECOV=true
     - os: linux
       compiler: clang
       env: CLANGTIDY=true
@@ -204,6 +171,7 @@ install:
       ./vcpkg integrate install
       ./vcpkg install catch2
       ./vcpkg install docopt
+      ./vcpkg install fmt
       ./vcpkg install date
       ./vcpkg install ms-gsl
       ./vcpkg install eigen3
@@ -213,12 +181,21 @@ install:
       ./vcpkg install tbb
       ./vcpkg install cgal
     fi
-  # Update ports
+  # Install/Update ports
   - cd $TRAVIS_BUILD_DIR/vcpkg
   - git pull
+  - ./vcpkg integrate install
+  - ./vcpkg install catch2
+  - ./vcpkg install docopt
+  - ./vcpkg install fmt
+  - ./vcpkg install date
+  - ./vcpkg install ms-gsl
+  - ./vcpkg install eigen3
+  - ./vcpkg install tbb
+  - ./vcpkg install cgal
   - ./vcpkg upgrade --no-dry-run
   - ./vcpkg list
-  - rm -rf downloads buildtrees
+  - rm -rf downloads buildtrees packages
   - cd ..
   - pwd
 
@@ -226,7 +203,7 @@ script:
   - mkdir build
   - cd build || exit
   - pwd
-  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$TRAVIS_BUILD_DIR/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+  - cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$TRAVIS_BUILD_DIR/vcpkg/scripts/buildsystems/vcpkg.cmake ..
   - cmake --build .
 
 after_success:

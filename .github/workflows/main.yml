@@ -1,0 +1,34 @@
+name: C++ CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: true
+    - name: Setup
+      run: |
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        sudo apt update
+        sudo apt-get install yasm ninja-build g++-9
+        export CXX="g++-9" CC="gcc-9"
+        cd $VCPKG_INSTALLATION_ROOT
+        vcpkg install catch2 docopt fmt ms-gsl eigen3 tbb cgal
+    - name: Build
+      shell: bash 
+      run: |
+        pwd
+        mkdir build
+        cd build
+        export VCPKG_ARG=-DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+        cmake $VCPKG_ARG -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ..
+        cmake --build .
+    - name: Test
+      run: |
+        cd build
+        cmake --build . --target test & exit 0

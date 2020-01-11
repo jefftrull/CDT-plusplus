@@ -3,18 +3,20 @@ cmake_minimum_required(VERSION 3.11)
 add_executable(
   CDT_test
   ${PROJECT_SOURCE_DIR}/tests/main.cpp
+  Apply_move_test.cpp
   Ergodic_moves_3_test.cpp
   Foliated_triangulation_test.cpp
   Geometry_test.cpp
   Manifold_test.cpp
   Move_command_test.cpp
-#  MoveManagerTest.cpp
-  S3ActionTest.cpp
-  SphereTest.cpp
+  # MoveManagerTest.cpp
+  Move_strategies_test.cpp
+  S3Action_test.cpp
+  Sphere_test.cpp
   Tetrahedron_test.cpp
   Torus_test.cpp
   Utilities_test.cpp
-  VertexTest.cpp)
+  Vertex_test.cpp)
 
 target_link_libraries(CDT_test Catch2::Catch2 date::date CGAL::CGAL)
 

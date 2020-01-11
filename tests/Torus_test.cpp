@@ -4,7 +4,7 @@
 ///
 /// Tests that 2-tori and 3-tori are correctly constructed in 3D and 4D.
 ///
-/// @file Torus.cpp
+/// @file Torus_test.cpp
 /// @brief Tests for wraparound grids
 /// @author Adam Getchell
 
@@ -35,10 +35,9 @@ SCENARIO("Torus construction", "[torus]")
     {
       THEN("A result should be returned.")
       {
-        std::cout
-            << "Torus = "
-            << boost::typeindex::type_id_with_cvr<decltype(v)>().pretty_name()
-            << '\n';
+        fmt::print(
+            "Torus = {}",
+            boost::typeindex::type_id_with_cvr<decltype(v)>().pretty_name());
       }
     }
   }

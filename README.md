@@ -1,12 +1,12 @@
 # CDT-plusplus
 
- [![Build Status](https://img.shields.io/travis/acgetchell/CDT-plusplus.svg?label=Linux/MacOS)](https://travis-ci.org/acgetchell/CDT-plusplus)
- [![Windows Build status](https://img.shields.io/appveyor/ci/acgetchell/cdt-plusplus.svg?label=Windows)](https://ci.appveyor.com/project/acgetchell/cdt-plusplus)
- [![Open Issues](https://img.shields.io/github/issues-raw/acgetchell/CDT-plusplus.svg)](https://github.com/acgetchell/CDT-plusplus/issues)
- [![codecov](https://codecov.io/gh/acgetchell/CDT-plusplus/branch/develop/graph/badge.svg)](https://codecov.io/gh/acgetchell/CDT-plusplus)
+[![Build Status](https://img.shields.io/travis/acgetchell/CDT-plusplus.svg?label=Linux/MacOS)](https://travis-ci.org/acgetchell/CDT-plusplus)
+[![Windows Build status](https://img.shields.io/appveyor/ci/acgetchell/cdt-plusplus.svg?label=Windows)](https://ci.appveyor.com/project/acgetchell/cdt-plusplus)
+[![](https://github.com/acgetchell/CDT-plusplus/workflows/C++%20CI/badge.svg?label=Actions)](https://github.com/acgetchell/CDT-plusplus/actions)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/acgetchell/CDT-plusplus.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/acgetchell/CDT-plusplus/context:cpp)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/acgetchell/CDT-plusplus.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/acgetchell/CDT-plusplus/context:python)
- [![Join the chat at https://gitter.im/acgetchell/CDT-plusplus](https://img.shields.io/badge/gitter-join%20chat%20→-brightgreen.svg)](https://gitter.im/acgetchell/CDT-plusplus)
+[![Open Issues](https://img.shields.io/github/issues-raw/acgetchell/CDT-plusplus.svg)](https://github.com/acgetchell/CDT-plusplus/issues)
+[![Join the chat at https://gitter.im/acgetchell/CDT-plusplus](https://img.shields.io/badge/gitter-join%20chat%20→-brightgreen.svg)](https://gitter.im/acgetchell/CDT-plusplus)
 
 **Quantize spacetime on your laptop.**
 
@@ -24,6 +24,7 @@ Uses [Melissa E. O'Neill's Permuted Congruential Generators][PCG] library for hi
 Uses [Catch] for [BDD]/[TDD].
 Uses [vcpkg] for library management and building.
 Uses [Doxygen] for automated document generation.
+Uses [{fmt}] as a safe and fast alternative to `iostream`.
 
 The goals and targets of this project are:
 
@@ -33,6 +34,7 @@ The goals and targets of this project are:
 - [x] Behavior-driven development ([BDD]) with [Catch]
 - [x] Continuous integration on MacOS and Linux with [gcc]/[Clang] using [Travis-CI]
 - [x] Continuous integration on Windows with [MSVC] using [AppVeyor]
+- [x] Continuous integration with [Github Actions]
 - [x] 3D Simplex
 - [x] 3D Spherical triangulation
 - [x] 2+1 foliation
@@ -41,8 +43,9 @@ The goals and targets of this project are:
 - [x] 3D Ergodic moves
 - [x] High-quality Random Number Generation with M.E. O'Neill's [PCG] library
 - [x] Multithreading via [TBB]
-- [x] Code coverage measurements with [Codecov]
 - [x] Automated code analysis with [LGTM]
+- [x] Build/debug with [Visual Studio 2019]
+- [x] Use [{fmt}] library (instead of `iostream`)
 - [ ] Metropolis algorithm
 - [ ] Output via [HDF5]
 - [ ] A [Surface mesh] manifold of 3D Triangulation
@@ -70,7 +73,7 @@ git clone --recurse-submodules https://github.com/acgetchell/CDT-plusplus.git
 
 (Older versions of `git` may require `--recursive` instead of `--recurse-submodules`.)
 
-This will put you on the [development] branch. Project is in the [PitchFork Layout], as follows:
+This will put you on the [development] branch. The project uses the [PitchFork Layout], as follows:
 
 - .github - GitHub specific settings
 - build - Ephemeral out-of-source build directory
@@ -92,33 +95,35 @@ cd vcpkg
 ./vcpkg integrate install
 ```
 
-Note that this helpfully installs up to date versions of [CMake] and [Ninja].
-
-On non-Windows platforms, you will also need to install `yasm` so that `vcpkg` can install
-[mpir], which is required for [CGAL].
+Next, you will need to install up to date versions of [CMake] and [Ninja]. On non-Windows platforms, you will also need
+`yasm` so that `vcpkg` can install [mpir], which is required for [CGAL].
 
 MacOS using [homebrew]:
 
 ```bash
+brew install cmake
+brew install ninja
 brew install yasm
 ```
 Linux using [apt] (you may also need to install [m4]):
 ```bash
+sudo apt-get install cmake
+sudo apt-get install ninja-build
 sudo apt-get install yasm
 sudo apt-get install m4
 ```
 
-At minimum, we need to install prerequisites [Catch], [docopt], [ms-gsl], [Eigen],
-[boost], [tbb], and [CGAL] (which installs [mpir] and [mpfr]):
+At minimum, you need to install prerequisites [Catch], [docopt], [{fmt}], [ms-gsl], [Eigen], [tbb], and [CGAL]
+(which installs [boost], [mpir] and [mpfr]):
 
 ```bash
-./vcpkg install catch2
-./vcpkg install docopt
-./vcpkg install ms-gsl
-./vcpkg install eigen3
-./vcpkg install boost
-./vcpkg install tbb
-./vcpkg install cgal
+vcpkg install catch2
+vcpkg install docopt
+vcpkg install fmt
+vcpkg install ms-gsl
+vcpkg install eigen3
+vcpkg install tbb
+vcpkg install cgal
 ```
 
 This builds from source, so it will take awhile. To use these successfully, you'll need to
@@ -128,26 +133,20 @@ you've installed [vcpkg], (e.g. your home directory):
 ```bash
 -DCMAKE_TOOLCHAIN_FILE=$HOME/vcpkg/scripts/buildsystems/vcpkg.cmake
 ```
+([Visual Studio 2019] sets this for you by default.)
 
-This project uses [C++]17 features, and successfully builds with AppleClang, [gcc-9], and [clang-7].
+This project uses [C++]17 features, and successfully builds with AppleClang, [gcc-9], [clang-7], and [Visual Studio 2019].
 On Ubuntu, you may need updated versions of [Clang] or [gcc], and [CMake], which is scripted in [.travis.yml].
 
 ### Building
 
-```bash
-cd tools
-./build.sh
-```
+In the `tools` directory, run `build.sh` or `build.bat` depending on your operating system.
 
-This should result in the main program executable, `cdt` in the `build/bin` directory, along with several others.
+This should result in the main program executable, `cdt` in `build/bin` or `build\Debug`, along with several others.
 
-- `CDT_test` is the [Catch] executable which runs the unit tests
 - `cdt-gv` converts output files to [Geomview] format for visualization
 - `cdt-opt` is a simplified version with hard-coded inputs, mainly useful for debugging and scripting
 - `initialize` is used by [CometML] to run [parameter optimization](#parameter-optimization)
-
-The install script will also run unit and integration tests.
-See [Testing](#testing) for details.
 
 ## Usage
 
@@ -197,10 +196,7 @@ links (in 2+1 spacetime) and the timelike faces (in 3+1 spacetime).
 
 ## Documentation
 
-Online documentation may be found at <http://www.adamgetchell.org/CDT-plusplus/>.
-
-It is automatically generated by [Travis-CI].
-
+Online documentation may be found at <https://adamgetchell.org/CDT-plusplus/> automatically generated by [Travis-CI].
 If you have [Doxygen] installed you can generate the same information
 locally using the configuration file in `docs\Doxyfile` by simply typing at the top
 level directory ([Doxygen] will recursively search):
@@ -219,10 +215,16 @@ If you do not have GraphViz installed, set this option to **NO**
 
 ## Testing
 
-Unit tests using [Catch] are run (in the `build/tests` directory) via:
+Unit tests are run (in `build/tests` or `build\tests\Debug`) via `CDT_test`, the [Catch] executable:
 
 ~~~bash
 ./CDT_test
+~~~
+
+or (Windows):
+
+~~~cmd
+CDT_test.exe
 ~~~
 
 You can also run both [CTest] integration and [Catch] unit tests in the `build` directory with:
@@ -231,14 +233,14 @@ You can also run both [CTest] integration and [Catch] unit tests in the `build` 
 ctest
 ~~~
 
+or (Windows):
+
+~~~
+ctest -C Debug
+~~~
+
 In addition to the command line output, you can see detailed results in the
 `build/Testing` directory which is generated thereby.
-
-Whitespace formatting can be checked using `git check`:
-
-~~~bash
-git diff --check HEAD^
-~~~
 
 ### Static Analysis
 
@@ -268,17 +270,6 @@ but slower static analysis integrated with [CMake] and [Ninja].
 ./scan.sh
 ~~~
 
-### Continuous Integration
-
-- [ClangTidy] on all changed files
-
-- Whitespace formatting
-
-- [Valgrind]; be sure to look at the results to ensure you're not leaking memory
-
-- [LGTM]; check to ensure you haven't introduced a security vulnerability. Look at the [query console] for
-more details.
-
 ## Parameter Optimization
 
 [CometML] is used to record [Experiments] which conduct [Model Optimization]. The script to do
@@ -296,10 +287,23 @@ You can then run experiments and look at results on https://www.comet.ml!
 
 Please see [CONTRIBUTING.md] and our [CODE_OF_CONDUCT.md].
 
+Your code should pass Continuous Integration:
+
+- [ClangTidy] on all changed files
+
+- Whitespace formatting (`git diff --check HEAD^`)
+
+- [Valgrind]; be sure to look at the results to ensure you're not leaking memory
+
+- [LGTM]; check to ensure you haven't introduced a security vulnerability. Look at the [query console] for
+more details.
+
+
 ## Upstream issues
 
 - As of 2018-11-29, the [vcpkg] formula for [date] is [broken][1], so I removed reliance on that library.
-Hopefully it will be back in C++20!
+Hopefully it will be back in C++20! Until then, I use Boost.Date_Time on macOS/Linux and (unsafe) std::localtime
+on Windows, as Boost.Date_Time [doesn't link][2] correctly.
 
 - As of 2019-10-16 [vcpkg] doesn't [build][3] on macOS 10.14 (but does on 10.15).
 
@@ -345,7 +349,6 @@ Hopefully it will be back in C++20!
 [BDD]: https://en.wikipedia.org/wiki/Behavior-driven_development
 [TDD]: https://en.wikipedia.org/wiki/Test-driven_development
 [.appveyor.yml]: https://github.com/acgetchell/CDT-plusplus/blob/master/.appveyor.yml
-[Codecov]: https://codecov.io
 [LGTM]: https://lgtm.com/projects/g/acgetchell/CDT-plusplus/
 [CometML]: https://www.comet.ml/
 [Experiments]: https://www.comet.ml/acgetchell/cdt-plusplus
@@ -366,8 +369,12 @@ Hopefully it will be back in C++20!
 [mpir]: http://mpir.org/
 [MSVC]: https://docs.microsoft.com/en-us/cpp/build/reference/compiling-a-c-cpp-program?view=vs-2019
 [m4]: https://www.gnu.org/software/m4/
-[1]: https://github.com/Microsoft/vcpkg/issues/4864
+[1]: https://github.com/microsoft/vcpkg/issues/9082
+[2]: https://github.com/microsoft/vcpkg/issues/9087
 [3]: https://github.com/microsoft/vcpkg/issues/8627
 [CONTRIBUTING.md]: https://github.com/acgetchell/CDT-plusplus/blob/develop/.github/CONTRIBUTING.md
 [CODE_OF_CONDUCT.md]: https://github.com/acgetchell/CDT-plusplus/blob/develop/.github/CODE_OF_CONDUCT.md
 [query console]: https://lgtm.com/query/lang:cpp/
+[Github Actions]: https://github.com/features/actions
+[Visual Studio 2019]: https://visualstudio.microsoft.com/vs/
+[{fmt}]: https://github.com/fmtlib/fmt
