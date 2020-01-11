@@ -126,14 +126,25 @@ inline std::ostream& operator<<(std::ostream&        t_os,
 
 #ifdef _WIN32
 /// @brief Return the current date and time
-/// Unsafe, but works on Windows
 inline std::string currentDateTime()
 {
-  using namespace date;
-  using namespace std::chrono;
-  auto t = make_zoned(current_zone(), system_clock::now());
-  return format("%Y-%m-%d.%X%Z", t);
+  std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+  std::time_t now_c    = std::chrono::system_clock::to_time_t(now);
+  auto        result_c = std::put_time(std::localtime(&now_c), "%Y-%m-%d.%X%Z");
+  std::ostringstream result_s;
+  result_s << result_c;
+  std::string result = result_s.str();
+  return result;
 }
+///// @brief Return the current date and time
+///// Unsafe, but works on Windows
+// inline std::string currentDateTime()
+//{
+//  using namespace date;
+//  using namespace std::chrono;
+//  auto t = make_zoned(current_zone(), system_clock::now());
+//  return format("%Y-%m-%d.%X%Z", t);
+//}
 #else
 /// @return Current date and time in standard format
 inline std::string currentDateTime()

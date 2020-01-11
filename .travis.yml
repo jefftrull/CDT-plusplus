@@ -171,8 +171,8 @@ install:
       ./vcpkg integrate install
       ./vcpkg install catch2
       ./vcpkg install docopt
-      ./vcpkg install fmt
       ./vcpkg install date
+      ./vcpkg install fmt
       ./vcpkg install ms-gsl
       ./vcpkg install eigen3
       ./vcpkg install boost
@@ -187,8 +187,8 @@ install:
   - ./vcpkg integrate install
   - ./vcpkg install catch2
   - ./vcpkg install docopt
-  - ./vcpkg install fmt
   - ./vcpkg install date
+  - ./vcpkg install fmt
   - ./vcpkg install ms-gsl
   - ./vcpkg install eigen3
   - ./vcpkg install tbb

@@ -6,7 +6,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v1
       with:
@@ -18,9 +18,9 @@ jobs:
         sudo apt-get install yasm ninja-build g++-9
         export CXX="g++-9" CC="gcc-9"
         cd $VCPKG_INSTALLATION_ROOT
-        vcpkg install catch2 docopt fmt ms-gsl eigen3 tbb cgal
+        vcpkg install catch2 docopt date fmt ms-gsl eigen3 tbb cgal
     - name: Build
-      shell: bash 
+      shell: bash
       run: |
         pwd
         mkdir build
